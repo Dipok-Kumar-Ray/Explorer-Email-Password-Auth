@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { auth } from "../firebase.init";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 
 const SignUp = () => {
 
     const [success, setSuccess] = useState(false)
     const [errorMessage, setErrorMessage] = useState('');
+    const [showPassword, setShowPassword] = useState(false)
 
   const handleSignUp = (e) => {
     e.preventDefault();
@@ -15,6 +18,17 @@ const SignUp = () => {
     setSuccess(false)
     setErrorMessage('');
 
+
+      //password validate
+
+      const passwordRegExp = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/;
+      if(passwordRegExp.test(password) === false){
+        setErrorMessage('password must have one lowercase,one Uppercase, one digit and 6 characters or longer.')
+        return;
+      }
+
+
+      //create user
     createUserWithEmailAndPassword(auth, email, password)
       .then((result) => {
         console.log("");
@@ -40,12 +54,19 @@ const SignUp = () => {
             placeholder="Email"
           />
           <label className="label mt-6">Password : </label>
+          <div className="relative">
           <input
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             name="password"
             className="input"
             placeholder="Password"
           />
+          <button onClick={()=>{setShowPassword(!showPassword)}} className="btn btn-xs absolute top-2 right-8">
+          {
+            showPassword ? <FaEyeSlash/> : <FaEye/>
+          }
+          </button>
+          </div>
           <div>
             <a className="link link-hover">Forgot password?</a>
           </div>
