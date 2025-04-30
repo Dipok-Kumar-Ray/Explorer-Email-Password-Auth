@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { auth } from "../firebase.init";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Link } from "react-router";
 
 const SignUp = () => {
   const [success, setSuccess] = useState(false);
@@ -23,7 +24,7 @@ const SignUp = () => {
 
     //password validate
 
-    const passwordRegExp = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/;
+    const passwordRegExp = /(?=.*\d)(?=.*[a-z]).{8,}/;
     if (passwordRegExp.test(password) === false) {
       setErrorMessage(
         "password must have one lowercase,one Uppercase, one digit and 6 characters or longer."
@@ -36,12 +37,25 @@ const SignUp = () => {
       .then((result) => {
         console.log("");
         console.log(result);
+        sendEmailVerification(auth.currentUser)
+        .then(()=>{
         setSuccess(true);
+
+        })
       })
       .catch((error) => {
-        setErrorMessage(error.message);
+        if(error.code === 'auth/email-already-in-use'){
+
+          setErrorMessage('')
+        }
+        else{
+          setErrorMessage(error.message);
+        }
         console.log(error);
+        // setErrorMessage(error.message);
+        // console.log(error);
       });
+
   };
   return (
     <div className="card bg-base-100 w-full max-w-sm mx-auto mt-3 shrink-0 shadow-2xl">
@@ -85,6 +99,9 @@ const SignUp = () => {
             Sign Up
           </button>
         </form>
+
+              <p>Already have an account? please <Link className="text-blue-500 underline" to='/login'> Login</Link></p>
+
         {errorMessage && <p className="text-red-600"> {errorMessage}</p>}
         {success && (
           <p className="text-green-600">User has created successfully</p>
